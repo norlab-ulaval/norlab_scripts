@@ -29,6 +29,7 @@ files_sorted = sorted(files, key=lambda x: int((str(x).split('/'))[-1].split('_'
 
 for i in files_sorted:
     number_file = int((str(i).split('/'))[-1].split('_')[1].split('.')[0])
+    print(i)
     data = DP(DP.load(str(i)))
     icp = PM.ICP()
     params = Parameters()
@@ -47,7 +48,7 @@ for i in files_sorted:
     matched_read = matched_points.reading.features[:dim]
     matched_ref = matched_points.reference.features[:dim]
     
-    result = data.createSimilarEmpty()
+    result = DP()
     result.features=matched_points.reading.features[:dim]
     distance_drift = np.linalg.norm(matched_read-matched_ref, axis=0)
     result.addDescriptor("Drift", np.array([distance_drift]))
