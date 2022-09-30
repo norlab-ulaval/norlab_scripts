@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 from typing import TYPE_CHECKING
 from rosbags.rosbag1 import Reader
+from fnmatch import fnmatch
 
 if TYPE_CHECKING:
     from typing import Callable, Tuple
@@ -60,10 +61,6 @@ def parse_arguments():
     return args
 
 
-class TopicNotFoundError(Exception):
-    """Topic is not in rosbag"""
-
-
 def check_rosbag_topics(src_path: Path, topics: Tuple[str]) -> None:
     """Check that all topics are in src"""
     with Reader(src_path) as src_bag:
@@ -74,12 +71,22 @@ def check_rosbag_topics(src_path: Path, topics: Tuple[str]) -> None:
         raise TopicNotFoundError(f"Topics {unavailable_topics} are not in the rosbag")
 
 
+def filter_topics(inbag: Path, outbag: Path, topics: Tuple[str]):
+    """Get topics"""
+    print(inbag, outbag, topics)
+
+
+class TopicNotFoundError(Exception):
+    """Topic is not in rosbag"""
+
+
 def main() -> None:
     """Main function"""
     args = parse_arguments()
-    check_rosbag_topics(args.inbag, args.topics)
 
-    print(args.inbag, args.outbag, args.topics)
+    filter_topics(**args.__dict__)
+
+    check_rosbag_topics(args.inbag, args.topics)
 
 
 if __name__ == "__main__":
