@@ -11,7 +11,7 @@ def filter(src, dst) -> None:
     with Reader(src) as reader, Writer(dst) as writer:
         conn_map = {}
         for conn in reader.connections:
-            if conn.topic == "/map":
+            if conn.topic == "/map" or conn.topic == "/icp_odom":
                 continue
             ext = cast(ConnectionExtRosbag2, conn.ext)
             conn_map[conn.id] = writer.add_connection(
@@ -22,7 +22,7 @@ def filter(src, dst) -> None:
             )
 
         for conn, timestamp, data in reader.messages():
-            if conn.topic == "/map":
+            if conn.topic == "/map" or conn.topic == "/icp_odom":
                 continue
             if conn.topic == "/tf":
                 msg = deserialize_cdr(data, conn.msgtype)
