@@ -27,7 +27,11 @@ def filter_cmd(argv):
         conn_map = {}
         for conn, timestamp, data in inbag.messages():
             try:
-                msg = deserialize_cdr(data, conn.msgtype)
+                try:
+                    msg = deserialize_cdr(data, conn.msgtype)
+                except:
+                    print("deserialization error for topic:", conn.topic)
+                    continue
                 if filter_fn(conn.topic, msg, timestamp):
                     if conn.id not in conn_map:
                         ext = cast(ConnectionExtRosbag2, conn.ext)
