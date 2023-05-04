@@ -5,6 +5,7 @@ import os
 from rosbags.rosbag2 import Reader
 from rosbags.serde import deserialize_cdr
 from rosbags.typesys import generate_msgdef
+from tqdm import tqdm
 
 def get_field_names(parent_field_type, parent_field_name=None):
     if '/' in parent_field_type:
@@ -36,6 +37,8 @@ def export_topic_cmd(argv):
     with Reader(bag_file_name) as bag_file, open(csv_file_name, "w+") as csv_file:
         field_names = []
         csv_header_written = False
+        progress_bar = None
+        progress_bar_initial_count = 0
         for conn, timestamp, data in bag_file.messages():
             if conn.topic == topic:
                 try:
@@ -50,10 +53,12 @@ def export_topic_cmd(argv):
                                     csv_header += ","
                                 csv_header += field_name
                             except AttributeError:
+                                pass
                                 print("Warning: Cannot retrieve field " + field_name + " of desired topic.")
                                 continue
                         csv_file.write(csv_header + "\n")
                         csv_header_written = True
+                        progress_bar = tqdm(total=bag_file.message_count, initial=progress_bar_initial_count)
 
                     csv_line = ""
                     for field_name in field_names:
@@ -64,6 +69,10 @@ def export_topic_cmd(argv):
                 except:
                     print("Error: Unable to deserialize messages from desired topic.")
                     sys.exit(3)
+            if progress_bar is not None:
+                progress_bar.update()
+            else:
+                progress_bar_initial_count += 1
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
