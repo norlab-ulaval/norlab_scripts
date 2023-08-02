@@ -65,7 +65,7 @@ def export_topic_cmd(argv):
                         if csv_line != "":
                             csv_line += ","
                         csv_line += str(eval("msg." + field_name))
-                    csv_file.write(csv_line﻿.replace("\n", "") + "\n")
+                    csv_file.write(csv_line.replace("\n", "") + "\n")
                 except:
                     print("Error: Unable to deserialize messages from desired topic.")
                     sys.exit(3)
