@@ -26,7 +26,7 @@ def get_angle(filename):
 
     angle = np.arctan2(height_diff, distance)
     print(
-        f"angle is {np.rad2deg(angle)} deg, which is {angle} rad. Should be corrected by {-angle} in pitch, but it may depend on the IMU configuration")
+        f"angle is {np.rad2deg(angle)} deg, which is {angle} rad. Should be corrected by {angle} in pitch, but it may depend on the IMU configuration")
     return angle
 
 
