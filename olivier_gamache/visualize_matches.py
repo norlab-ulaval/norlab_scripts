@@ -122,7 +122,7 @@ def main():
     IMAGES_2 = [
         "/media/alienware/T7_Shield/ICRA2024_OG/dataset/belair-09-27-2023/data_high_resolution/backpack_2023-09-27-13-20-03/camera_left/8.0/1695835262119823104.png",
     ]
-    WHICH_FEATURE = "orb" # "sift" or "orb"
+    WHICH_FEATURE = "sift" # "sift" or "orb"
 
     print("\033[93mWarning: To have accurate matches, should use rectified images\033[0m")
     
@@ -151,12 +151,15 @@ def main():
         for image_1_path, image_2_path in zip(IMAGES_1, IMAGES_2):
             visualizer = VISUALIZER()
             visualizer.load_image(image_1_path, image_2_path)
+            visualizer.save_image(visualizer.image_1, "images/matches/original_" + image_1_path.split("/")[-1])
+            visualizer.save_image(visualizer.image_2, "images/matches/original_" + image_2_path.split("/")[-1])
             keypoints_1, descriptors_1 = feature_extractor.find_sift_features(visualizer.image_1)
             keypoints_2, descriptors_2 = feature_extractor.find_sift_features(visualizer.image_2)
             matches = feature_extractor.calculate_matches(descriptors_1, descriptors_2, best_k=100)
             img_matches = visualizer.draw_matches_on_image(keypoints_1, keypoints_2, matches)
             visualizer.display_image(img_matches)
             visualizer.save_image(img_matches, "images/matches/sift_" + image_1_path.split("/")[-1] + "_" + image_2_path.split("/")[-1])
+
     elif WHICH_FEATURE == "orb":
         feature_extractor = ORB_FEATURES(orb_params)
         for image_1_path, image_2_path in zip(IMAGES_1, IMAGES_2):
