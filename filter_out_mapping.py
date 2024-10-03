@@ -11,18 +11,22 @@ def filter(src, dst) -> None:
     with Reader(src) as reader, Writer(dst) as writer:
         conn_map = {}
         for conn in reader.connections:
-            if conn.topic == "/map" or conn.topic == "/icp_odom":
+            if conn.topic == "/mapping/map" or conn.topic == "/mapping/icp_odom":
                 continue
             ext = cast(ConnectionExtRosbag2, conn.ext)
-            conn_map[conn.id] = writer.add_connection(
-                conn.topic,
-                conn.msgtype,
-                ext.serialization_format,
-                ext.offered_qos_profiles,
-            )
+            try:
+                conn_map[conn.id] = writer.add_connection(
+                    conn.topic,
+                    conn.msgtype,
+                    serialization_format=ext.serialization_format,
+                    offered_qos_profiles=ext.offered_qos_profiles,
+                )
+            except:
+                print("The message ", conn.topic, " will not be written to the new bag, the definition is unknown.")
+                continue
 
         for conn, timestamp, data in reader.messages():
-            if conn.topic == "/map" or conn.topic == "/icp_odom":
+            if conn.topic == "/mapping/map" or conn.topic == "/mapping/icp_odom":
                 continue
             if conn.topic == "/tf":
                 msg = deserialize_cdr(data, conn.msgtype)
@@ -31,7 +35,10 @@ def filter(src, dst) -> None:
                     and msg.transforms[0].child_frame_id == "odom"
                 ):
                     continue
-            writer.write(conn_map[conn.id], timestamp, data)
+            try:
+                writer.write(conn_map[conn.id], timestamp, data)
+            except:
+                continue
 
 
 if __name__ == "__main__":
@@ -42,3 +49,4 @@ if __name__ == "__main__":
         exit(1)
     else:
         filter(sys.argv[1], sys.argv[2])
+
